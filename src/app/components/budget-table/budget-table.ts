@@ -30,7 +30,7 @@ export class BudgetTable {
   incomeTotal;
   expenseTotal;
   startMonth = signal<string>('2025-01');
-  endMonth = signal<string>('2025-02');
+  endMonth = signal<string>('2025-12');
   categories = signal<CategoryNode[]>([
     { id: '1', name: 'General Income', parentId: null, type: 'income' },
     { id: '2', name: 'Sales', parentId: '1', type: 'income' },
