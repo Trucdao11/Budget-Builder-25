@@ -1,0 +1,206 @@
+<div class="container">
+  <table id="simpleTable1" class="w-75 table-auto">
+    <thead>
+      <tr>
+        <th>
+          <div class="d-flex flex-nowrap items-center justify-between">
+            <span> Select Start Month </span>
+            <input
+              type="month"
+              (change)="startMonth.set($any($event.target).value)"
+              [value]="startMonth()"
+            />
+            <span>Select End Month</span>
+            <input
+              type="month"
+              (change)="endMonth.set($any($event.target).value)"
+              [value]="endMonth()"
+            />
+          </div>
+        </th>
+        @for (month of filteredMonths(); track month) {
+        <th>{{ month }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Income Category -->
+      <tr>
+        <td class="sub-title" [attr.colspan]="columInTable()">Income</td>
+      </tr>
+
+      @for (category of incomes(); track category.id) {
+      <tr>
+        <td
+          [attr.colspan]="category.parentId ? 1 : columInTable()"
+          data-f-sz="20"
+          data-f-color="FF0000FF"
+          [class.sub-category]="category.parentId"
+          [class.main-category]="!category.parentId"
+        >
+          {{ category.name }}
+        </td>
+      </tr>
+
+      @for (childCategory of category.children; track childCategory.id) {
+      <tr>
+        <td>
+          @if( childCategory.isEditable) {
+          <input
+            type="text"
+            [value]="childCategory.name"
+            (input)="childCategory.name = $any($event.target).value"
+            (keydown.enter)="updateCategoryName(childCategory.id, childCategory.name)"
+            (mouseleave)="updateCategoryName(childCategory.id, childCategory.name)"
+          />
+          } @else {
+          <span>{{ childCategory.name }}</span
+          >}
+        </td>
+        @for (month of filteredMonths(); track month) {
+        <td>
+          <input
+            #firstCell
+            type="number"
+            min="0"
+            [value]="values()[childCategory.id]?.[month] || 0"
+            (keydown)="handleKeyDown($event, firstCell, category.id, childCategory)"
+            (input)="updateValue(childCategory.id, month, $any($event.target).value)"
+            [attr.data-parent-id]="category.id"
+            (contextmenu)="openDialog($event, childCategory.id, month)"
+          />
+        </td>
+        }
+      </tr>
+      }
+      <tr>
+        <td (click)="addChildCategory(category.id, 'income', $any($event.target).value)">
+          Add a new '{{ category.name }}' Category
+        </td>
+        @for (month of filteredMonths(); track month) {
+        <td>
+          <input
+            class="add-new"
+            type="text"
+            placeholder=""
+            (keydown.enter)="addChildCategory(category.id, 'income', $any($event.target).value)"
+          />
+        </td>
+        }
+      </tr>
+
+      <tr>
+        <td class="fw-bolder">Sub Total</td>
+        @for (total of (incomeSubTotals()[category.id] || []); track $index) {
+        <td>{{ total }}</td>
+        }
+      </tr>
+
+      <tr>
+        <td [attr.colspan]="columInTable()">&nbsp;</td>
+      </tr>
+      }
+
+      <tr>
+        <td class="fw-bolder">Income Total</td>
+        @for (total of incomeTotals(); track $index) {
+        <td class="fw-bolder">{{ total }}</td>
+        }
+      </tr>
+
+      <tr>
+        <td [attr.colspan]="columInTable()">&nbsp;</td>
+      </tr>
+
+      <!-- Expenses Category -->
+      <tr>
+        <td class="sub-title" [attr.colspan]="columInTable()">Expenses</td>
+      </tr>
+
+      @for (category of expenses(); track category.id) {
+      <tr>
+        <td
+          [attr.colspan]="category.parentId ? 1 : columInTable()"
+          data-f-sz="20"
+          data-f-color="FF0000FF"
+          [class.sub-category]="category.parentId"
+          [class.main-category]="!category.parentId"
+        >
+          {{ category.name }}
+        </td>
+      </tr>
+
+      @for (childCategory of category.children; track childCategory.id) {
+      <tr>
+        <td>
+          @if( childCategory.isEditable) {
+          <input
+            type="text"
+            [value]="childCategory.name"
+            (input)="childCategory.name = $any($event.target).value"
+            (keydown.enter)="updateCategoryName(childCategory.id, childCategory.name)"
+            (mouseleave)="updateCategoryName(childCategory.id, childCategory.name)"
+          />
+          } @else {
+          <span>{{ childCategory.name }}</span
+          >}
+        </td>
+        @for (month of filteredMonths(); track month) {
+        <td>
+          <input
+            #cell
+            type="number"
+            min="0"
+            [value]="values()[childCategory.id]?.[month] || 0"
+            (keydown)="handleKeyDown($event, cell, category.id, childCategory)"
+            (input)="updateValue(childCategory.id, month, $any($event.target).value)"
+            [attr.data-parent-id]="category.id"
+          />
+        </td>
+        }
+      </tr>
+      }
+
+      <tr>
+        <td class="fw-bolder">Sub Total</td>
+        @for (total of expensesSubTotals()[category.id]; track $index) {
+        <td>{{ total }}</td>
+        }
+      </tr>
+
+      <tr>
+        <td [attr.colspan]="columInTable()">&nbsp;</td>
+      </tr>
+      }
+
+      <tr>
+        <td class="fw-bolder">Total Expenses</td>
+        @for (total of expensesTotals(); track $index) {
+        <td class="fw-bolder">{{ total }}</td>
+        }
+      </tr>
+
+      <tr>
+        <td class="fw-bolder">Profit / Loss</td>
+        @for (pl of profitOrLoss(); track $index) {
+        <td class="fw-bolder">{{ pl }}</td>
+        }
+      </tr>
+
+      <tr>
+        <td class="fw-bolder">Opening Balance</td>
+        @for (ob of openingBalances(); track $index) {
+        <td class="fw-bolder">{{ ob }}</td>
+        }
+      </tr>
+
+      <tr>
+        <td class="fw-bolder">Closing Balance</td>
+        @for (cb of closingBalances(); track $index) {
+        <td class="fw-bolder">{{ cb }}</td>
+        }
+      </tr>
+    </tbody>
+  </table>
+</div>
+
